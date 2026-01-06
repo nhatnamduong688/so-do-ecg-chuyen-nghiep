@@ -43,3 +43,31 @@ Nên đặt tên tag theo quy chuẩn `vX.Y.Z`:
 - **X (Major)**: Thay đổi cực lớn, thay đổi kiến trúc (ví dụ: v1.0 lên v2.0).
 - **Y (Minor)**: Thêm tính năng mới (ví dụ: v1.1, v1.2).
 - **Z (Patch)**: Sửa lỗi nhỏ (ví dụ: v1.0.1).
+
+## 4. Tìm kiếm và Sử dụng lại
+
+### a. Trên GitHub
+Bạn muốn tìm lại code cũ?
+1. Vào trang chính của repo.
+2. Bấm vào nút **Tags** (bên cạnh số lượng branches/commits).
+3. Chọn version bạn muốn (ví dụ `v1.0.0`).
+4. Bấm **"Browse files"** để xem code tại thời điểm đó, hoặc tải file zip về.
+
+### b. Ở máy (Terminal)
+Tìm kiếm tag:
+```bash
+# Liệt kê tất cả
+git tag
+
+# Tìm kiếm theo mẫu (ví dụ tìm tất cả bản v1.x)
+git tag -l "v1.*"
+```
+
+Quay về quá khứ (Checkout):
+```bash
+# Chuyển code trong máy về đúng trạng thái của v1.0.0
+git checkout v1.0.0
+
+# Quay trở lại hiện tại (code mới nhất)
+git checkout master
+```
