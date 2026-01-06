@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Diagrams</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ... existing styles ... */
+        :root {
+            /* ... existing vars ... */
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-bg: #eff6ff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --line-color: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 80px;
+        }
+
+        h1,
+        h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .diagram-container {
+            background: white;
+            padding: 60px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            overflow-x: auto;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .diagram-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .download-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .download-btn:hover {
+            background-color: var(--accent-bg);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        /* Common Node Styles */
+        .node {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 2;
+            position: relative;
+            min-width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .node.oval {
+            border-radius: 50px;
+        }
+
+        .node.rect {
+            border-radius: 6px;
+        }
+
+        /* Logic for lines (SVG) */
+        svg.connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        path {
+            fill: none;
+            stroke: var(--line-color);
+            stroke-width: 1.5;
+            marker-end: url(#arrowhead);
+        }
+
+        /* --- Diagram 1: specific layout --- */
+        #d1-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+            height: 200px;
+            /* Force height for absolute positioning of curve */
+            padding: 20px;
+            /* Add padding for capture */
+            background: white;
+            /* Ensure bg is captured */
+        }
+
+        /* --- Diagram 2: specific layout --- */
+        #d2-wrapper {
+            display: grid;
+            grid-template-columns: repeat(5, auto);
+            gap: 30px 50px;
+            align-items: center;
+            padding: 20px;
+            background: white;
+        }
+
+        /* --- Diagram 3: specific layout --- */
+        #d3-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+            background: white;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .d3-box {
+            background: #fffdf2;
+            /* Slight warm tint for WEM */
+            border: 1px solid #fef08a;
+        }
+
+        .d3-blue {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .d3-red {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        /* Utility for small mono text */
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+    </style>
+    <!-- Add html2canvas library -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+    <svg style="display: none;">
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+            </marker>
+        </defs>
+    </svg>
+
+    <!-- DIAGRAM 1: Channel Attention -->
+    <div class="diagram-container">
+        <div class="diagram-title">Figure 1: Channel Attention Module</div>
+        <button class="download-btn" onclick="downloadDiagram('d1-wrapper', 'Figure_1_Channel_Attention')">Download
+            PNG</button>
+        <div id="d1-wrapper">
+            <!-- Nodes -->
+            <div class="node oval" id="d1-n1">
+                Feature Vector F<br>
+                <span class="mono">(B×768)<br>from GAP</span>
+            </div>
+
+            <div class="node oval" id="d1-n2">Feature Reduction<br><span class="mono">FC: 768 → 192</span></div>
+            <div class="node oval" id="d1-n3">ReLU</div>
+            <div class="node oval" id="d1-n4">Feature Expansion<br><span class="mono">FC: 192 → 768</span></div>
+            <div class="node oval" id="d1-n5">Sigmoid<br>Attention Weights A<br><span class="mono">(B×768)</span></div>
+            <div class="node oval" id="d1-n6">Channel-wise<br>Multiplication<br><span class="mono">F ⊗ A</span></div>
+            <div class="node oval" id="d1-n7">Refined Feature<br><span class="mono">(B×768)</span></div>
+
+            <!-- SVG Lines will be drawn by JS for perfect alignment -->
+            <svg class="connections" id="d1-lines"></svg>
+        </div>
+    </div>
+
+
+    <!-- DIAGRAM 2: Enhancement Flow -->
+    <div class="diagram-container">
+        <div class="diagram-title">Figure 2: Waveform Enhancement Flow</div>
+        <button class="download-btn" onclick="downloadDiagram('d2-wrapper', 'Figure_2_Waveform_Enhancement')">Download
+            PNG</button>
+        <div id="d2-wrapper"
+            style="display:flex; flex-direction:row; align-items:center; gap: 40px; position:relative;">
+
+            <div class="node rect" id="d2-n1">Input ECG Image<br><span class="mono">(3 channels)</span></div>
+
+            <!-- Branching visual container -->
+            <div style="display:flex; flex-direction:column; gap:20px; align-items:center;">
+                <div class="node rect" id="d2-n2">Multi-scale Convolution<br><span class="mono">(3×3 | 5×5 | 7×7)<br>→
+                        Concat</span></div>
+                <div class="node rect" id="d2-n3">1×1 Conv<br><span class="mono">(Channel Projection)</span></div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 60px;">
+                <!-- Spacer for visual alignment with branch -->
+                <div class="node rect" id="d2-n4">Channel Attention<br><span class="mono">GAP → FC → ReLU → FC<br>→
+                        Sigmoid</span></div>
+            </div>
+
+            <div class="node rect" id="d2-n5">Feature × Attention</div>
+            <div class="node rect" id="d2-n6">Residual Add</div>
+            <div class="node rect" id="d2-n7">Enhanced ECG Image</div>
+
+            <svg class="connections" id="d2-lines"></svg>
+        </div>
+    </div>
+
+
+    <!-- DIAGRAM 3: Architecture -->
+    <div class="diagram-container" style="align-items: flex-start; justify-content: center;">
+        <div class="diagram-title">Figure 3: Overall Network Architecture</div>
+        <button class="download-btn" onclick="downloadDiagram('d3-wrapper', 'Figure_3_Network_Architecture')">Download
+            PNG</button>
+        <div id="d3-wrapper">
+
+            <div class="node rect" id="d3-n1">ECG Image<br><span class="mono">(224×224×3)</span></div>
+
+            <div class="node rect" id="d3-n2">Preprocessing<br><span class="mono">• Resize<br>• Normalize<br>•
+                    Denoise</span></div>
+
+            <div class="node rect d3-box" id="d3-n3">Waveform Enhancement Module (WEM)<br><span class="mono">Conv 3×3 +
+                    BN + ReLU<br>Channel Attention<br>Residual Enhancement</span></div>
+
+            <div class="node rect" id="d3-n4">Swin Transformer Backbone<br><span class="mono">(4 Stages)<br>Patch
+                    Partition + Window Attention</span></div>
+
+            <!-- Parallel Stages -->
+            <div class="row" style="gap: 15px;">
+                <div class="node rect" id="d3-s1">Stage 1<br><span class="mono">Low-level</span></div>
+                <div class="node rect" id="d3-s2">Stage 2<br><span class="mono">Local Patterns</span></div>
+                <div class="node rect" id="d3-s3">Stage 3<br><span class="mono">Mid-level</span></div>
+                <div class="node rect" id="d3-s4">Stage 4<br><span class="mono">Global Context</span></div>
+            </div>
+
+            <div class="node rect d3-blue" id="d3-n5">Multi-level Feature Fusion<br><span class="mono">- Linear
+                    Projection<br>- Multi-head Attention<br>- Feature Aggregation</span></div>
+
+            <div class="node rect d3-red" id="d3-n6">Attention-based Feature Refinement<br><span class="mono">(Channel /
+                    Spatial Attention)</span></div>
+
+            <div class="node rect" id="d3-n7">Classifier Head<br><span class="mono">FC + ReLU + Dropout<br>FC → 4
+                    Classes<br>Focal Loss</span></div>
+
+            <div class="node rect" id="d3-n8">Predicted ECG Class<br><span class="mono">(ABH / HMI / MI / NORM)</span>
+            </div>
+
+            <svg class="connections" id="d3-lines"></svg>
+        </div>
+    </div>
+
+    <script>
+        function downloadDiagram(elementId, filename) {
+            const element = document.getElementById(elementId);
+            html2canvas(element, {
+                backgroundColor: '#ffffff',
+                scale: 3, // High resolution
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = filename + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Simple script to draw lines between elements
+        function drawLine(svgId, startId, endId, type = "straight", offset = {}) {
+            // ... (rest of the drawing code remains the same)
+
+            const svg = document.getElementById(svgId);
+            const startNode = document.getElementById(startId);
+            const endNode = document.getElementById(endId);
+
+            if (!startNode || !endNode) return;
+
+            const startRect = startNode.getBoundingClientRect();
+            const endRect = endNode.getBoundingClientRect();
+            const svgRect = svg.getBoundingClientRect();
+
+            // Calculate centers relative to SVG
+            const startX = startRect.left + startRect.width / 2 - svgRect.left;
+            const startY = startRect.top + startRect.height / 2 - svgRect.top;
+            const endX = endRect.left + endRect.width / 2 - svgRect.left;
+            const endY = endRect.top + endRect.height / 2 - svgRect.top;
+
+            // Anchor points
+            let x1 = startX, y1 = startY, x2 = endX, y2 = endY;
+
+            // Adjust anchors to edges based on relative position
+            if (Math.abs(startX - endX) > Math.abs(startY - endY)) {
+                // Horizontal flow
+                x1 = startX < endX ? startX + startRect.width / 2 : startX - startRect.width / 2;
+                x2 = startX < endX ? endX - endRect.width / 2 : endX + endRect.width / 2;
+            } else {
+                // Vertical flow
+                y1 = startY < endY ? startY + startRect.height / 2 : startY - startRect.height / 2;
+                y2 = startY < endY ? endY - endRect.height / 2 : endY + endRect.height / 2;
+            }
+
+            // Manual Offsets override
+            if (offset.start === 'bottom') { x1 = startX; y1 = startY + startRect.height / 2; }
+            if (offset.end === 'top') { x2 = endX; y2 = endY - endRect.height / 2; }
+            if (offset.start === 'right') { x1 = startX + startRect.width / 2; y1 = startY; }
+            if (offset.end === 'left') { x2 = endX - endRect.width / 2; y2 = endY; }
+
+            // Draw path
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            let d = "";
+
+            if (type === "straight") {
+                d = `M ${x1} ${y1} L ${x2} ${y2}`;
+            } else if (type === "curved") {
+                // simple curve handle control points
+                const c1x = x1 + (x2 - x1) * 0.5;
+                const c1y = y1;
+                const c2x = x2 - (x2 - x1) * 0.5;
+                const c2y = y2;
+                d = `M ${x1} ${y1} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${x2} ${y2}`;
+            } else if (type === "skip-bottom") {
+                // Deep curve for skip connections (like in diagram 1)
+                d = `M ${startX} ${startY + startRect.height / 2} Q ${(startX + endX) / 2} ${startY + 100} ${endX} ${endY + endRect.height / 2}`;
+                // Reset target to bottom center for skip connections
+                // Actually relying on calc above might be off for this specific 'skip' case
+            }
+
+            path.setAttribute("d", d);
+            svg.appendChild(path);
+        }
+
+        // Draw Diagram 1 lines
+        function drawD1() {
+            const ids = ['d1-n1', 'd1-n2', 'd1-n3', 'd1-n4', 'd1-n5', 'd1-n6', 'd1-n7'];
+            for (let i = 0; i < ids.length - 1; i++) {
+                drawLine('d1-lines', ids[i], ids[i + 1], 'straight', { start: 'right', end: 'left' });
+            }
+            // Skip connection
+            // We need a specific curve for N1 -> N6 bottom
+            const svg = document.getElementById('d1-lines');
+            const n1 = document.getElementById('d1-n1').getBoundingClientRect();
+            const n6 = document.getElementById('d1-n6').getBoundingClientRect();
+            const svgRect = svg.getBoundingClientRect();
+
+            const startX = n1.right - n1.width / 2 - svgRect.left;
+            const startY = n1.bottom - svgRect.top;
+            const endX = n6.left + n6.width / 2 - svgRect.left;
+            const endY = n6.bottom - svgRect.top;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            // Quad curve
+            path.setAttribute("d", `M ${startX} ${startY - 10} Q ${(startX + endX) / 2} ${startY + 60} ${endX} ${endY}`);
+            svg.appendChild(path);
+        }
+
+
+        // Draw Diagram 2 lines
+        function drawD2() {
+            // N1 -> N2 (Branch top)
+            drawLine('d2-lines', 'd2-n1', 'd2-n2', 'straight');
+            // N1 -> N4 (Branch bottom) - this is tricky, let's just do direct lines
+            // Actually visually N1 connects to start of both flow.
+
+            /* Manual structure override for visual correctness */
+            const svg = document.getElementById('d2-lines');
+            const n1 = document.getElementById('d2-n1');
+            const n2 = document.getElementById('d2-n2'); // top branch
+            const n4 = document.getElementById('d2-n4'); // bottom branch
+
+            // N1 splits to N2 and N4
+            drawLine('d2-lines', 'd2-n1', 'd2-n2', 'curved', { start: 'right', end: 'left' });
+            drawLine('d2-lines', 'd2-n1', 'd2-n4', 'curved', { start: 'right', end: 'left' });
+
+            // N2 -> N3
+            drawLine('d2-lines', 'd2-n2', 'd2-n3', 'straight', { start: 'right', end: 'left' });
+
+            // N3 -> N5 (Top join)
+            drawLine('d2-lines', 'd2-n3', 'd2-n5', 'curved', { start: 'right', end: 'top' });
+
+            // N4 -> N5 (Bottom join)
+            drawLine('d2-lines', 'd2-n4', 'd2-n5', 'curved', { start: 'right', end: 'left' });
+
+            // N5 -> N6
+            drawLine('d2-lines', 'd2-n5', 'd2-n6', 'straight', { start: 'right', end: 'left' });
+
+            // N6 -> N7
+            drawLine('d2-lines', 'd2-n6', 'd2-n7', 'straight', { start: 'right', end: 'left' });
+
+            // N1 -> N6 (Residual Skip) - Long curve bottom
+            const n1Rect = n1.getBoundingClientRect();
+            const n6Rect = document.getElementById('d2-n6').getBoundingClientRect();
+            const svgRect = svg.getBoundingClientRect();
+
+            const startX = n1Rect.left + n1Rect.width / 2 - svgRect.left;
+            const startY = n1Rect.bottom - svgRect.top;
+            const endX = n6Rect.left + n6Rect.width / 2 - svgRect.left;
+            const endY = n6Rect.bottom - svgRect.top;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", `M ${startX} ${startY} Q ${(startX + endX) / 2} ${startY + 60} ${endX} ${endY}`);
+            svg.appendChild(path);
+        }
+
+        // Draw Diagram 3 lines
+        function drawD3() {
+            const verticalPairs = [
+                ['d3-n1', 'd3-n2'],
+                ['d3-n2', 'd3-n3'],
+                ['d3-n3', 'd3-n4']
+            ];
+            verticalPairs.forEach(p => drawLine('d3-lines', p[0], p[1], 'straight', { start: 'bottom', end: 'top' }));
+
+            // N4 splits to S1, S2, S3, S4
+            const stages = ['d3-s1', 'd3-s2', 'd3-s3', 'd3-s4'];
+            stages.forEach(s => {
+                drawLine('d3-lines', 'd3-n4', s, 'straight', { start: 'bottom', end: 'top' });
+            });
+
+            // Stages merge to N5
+            stages.forEach(s => {
+                drawLine('d3-lines', s, 'd3-n5', 'straight', { start: 'bottom', end: 'top' });
+            });
+
+            const rest = [
+                ['d3-n5', 'd3-n6'],
+                ['d3-n6', 'd3-n7'],
+                ['d3-n7', 'd3-n8']
+            ];
+            rest.forEach(p => drawLine('d3-lines', p[0], p[1], 'straight', { start: 'bottom', end: 'top' }));
+        }
+
+        // Run on load
+        window.addEventListener('load', () => {
+            drawD1();
+            drawD2();
+            drawD3();
+        });
+
+        // Redraw on resize
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('svg.connections').forEach(svg => svg.innerHTML = '');
+            // re-add defs if cleared? innerHTML clears everything.
+            // Actually marker is in a separate SVG so it's fine.
+            drawD1();
+            drawD2();
+            drawD3();
+        });
+
+    </script>
+</body>
+
+</html>
